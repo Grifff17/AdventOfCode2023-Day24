@@ -1,3 +1,4 @@
+from sympy import *
 
 def solvepart1():
     #read in data
@@ -55,6 +56,36 @@ def posInFuture2D(oldPos, velocity, newPos):
         valid = False
     return valid
 
+def solvepart2():
+    data = fileRead("input.txt")
+    hailstones = []
+    for row in data[:3]:
+        firstHalf, secondHalf = row.strip().replace(" ","").split("@")
+        pos = [ int(val) for val in firstHalf.split(",") ]
+        vel = [ int(val) for val in secondHalf.split(",") ]
+        hailstones.append((pos,vel))
+    
+    #enter first 3 hailstones into system of equations
+    rx, ry, rz, rvx, rvy, rvz = symbols("rx ry rz rvx rvy rvz")
+    all_equations = []
+    times = []
+    index = 0
+    for hail in hailstones:
+        index += 1
+        pos, vel = hail
+        hx, hy, hz = pos
+        hvx, hvy, hvz = vel
+        t = Symbol("t" + str(index))
+        xEq = rx - hx + rvx*t - hvx*t 
+        yEq = ry - hy + rvy*t - hvy*t 
+        zEq = rz - hz + rvz*t - hvz*t 
+        all_equations = all_equations + [ xEq, yEq, zEq ]
+        times = times + [t]
+    
+    #solve equation system
+    answer = solve(all_equations, [ rx, ry, rz, rvx, rvy, rvz ] + times)
+    print(answer)
+    print(answer[0][0]+answer[0][1]+answer[0][2])
 
 def fileRead(name):
     data = []
@@ -63,4 +94,4 @@ def fileRead(name):
         data.append(line);
     return data
 
-solvepart1()
+solvepart2()
